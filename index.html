@@ -4,12 +4,20 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Tiệm Sách Siêu Đẹp</title>
+    <!-- CDNs -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
   </head>
   <body>
+    <!-- Toast Container -->
+    <div id="toast-container" class="position-fixed top-0 start-50 translate-middle-x p-3" style="z-index: 2000;"></div>
+
     <header>
         <div class="container header-content">
             <div class="logo" onclick="switchView('store')">
@@ -18,20 +26,20 @@
             </div>
             <nav>
                 <button class="nav-btn active" data-view="store" onclick="switchView('store')">
-                    🏠 <span>Cửa hàng</span>
+                    <i class="fa-solid fa-house"></i> <span>Cửa hàng</span>
                 </button>
                 <button class="nav-btn" data-view="admin" onclick="switchView('admin')">
-                    ⚙️ <span>Quản lý</span>
+                    <i class="fa-solid fa-gear"></i> <span>Quản lý</span>
                 </button>
                 <button class="nav-btn" data-view="cart" onclick="switchView('cart')" style="position: relative;">
-                    🛒 <span>Giỏ hàng</span>
+                    <i class="fa-solid fa-cart-shopping"></i> <span>Giỏ hàng</span>
                     <div id="cart-count" class="cart-badge" style="display: none;">0</div>
                 </button>
                 <button class="nav-btn" data-view="profile" onclick="switchView('profile')">
-                    👤 <span>Hồ sơ</span>
+                    <i class="fa-solid fa-user"></i> <span>Hồ sơ</span>
                 </button>
                 <button class="nav-btn" onclick="switchView('login')">
-                    🔑 <span>Đăng nhập</span>
+                    <i class="fa-solid fa-key"></i> <span>Đăng nhập</span>
                 </button>
             </nav>
         </div>
@@ -43,7 +51,7 @@
 
     <!-- Admin Login Modal -->
     <div id="admin-login-modal" class="modal-overlay">
-        <div class="modal-content">
+        <div class="modal-content animate__animated animate__zoomIn">
             <div class="modal-header">
                 <h2 style="font-weight: 900;">XÁC THỰC QUẢN LÝ</h2>
             </div>
@@ -62,6 +70,81 @@
         </div>
     </div>
 
+    <!-- Edit Book Modal -->
+    <div id="edit-book-modal" class="modal-overlay">
+        <div class="modal-content animate__animated animate__fadeInDown">
+            <div class="modal-header">
+                <h2 style="font-weight: 900;">SỬA THÔNG TIN SÁCH</h2>
+            </div>
+            <form onsubmit="handleUpdateBook(event)">
+                <input type="hidden" id="edit-id">
+                <div class="form-group"><label>Tên sách</label><input type="text" id="edit-title" required></div>
+                <div class="form-group"><label>Giá bán</label><input type="number" id="edit-price" required></div>
+                <div class="form-group"><label>Tác giả</label><input type="text" id="edit-author"></div>
+                <div class="form-group"><label>Số lượng</label><input type="number" id="edit-qty"></div>
+                <div class="form-group">
+                    <label>Ảnh sản phẩm</label>
+                    <div style="display: flex; gap: 10px; flex-direction: column;">
+                        <input type="text" id="edit-url" placeholder="Dán link ảnh vào đây...">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span style="font-size: 0.75rem; color: var(--slate-400);">Hoặc tải lên từ máy:</span>
+                            <input type="file" id="edit-file" accept="image/*" style="font-size: 0.75rem;">
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" class="submit-btn">CẬP NHẬT</button>
+                <button type="button" onclick="closeEditModal()" style="width: 100%; background: none; border: none; color: var(--slate-400); margin-top: 10px; cursor: pointer;">Huỷ bỏ</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Custom Confirm Modal -->
+    <div id="confirm-modal" class="modal-overlay">
+        <div class="modal-content animate__animated animate__headShake" style="max-width: 350px;">
+            <div class="modal-header">
+                <h2 id="confirm-title" style="font-weight: 900; font-size: 1.25rem;">XÁC NHẬN</h2>
+            </div>
+            <p id="confirm-message" style="text-align: center; margin-bottom: 1.5rem; color: var(--slate-500);"></p>
+            <div style="display: flex; gap: 10px;">
+                <button id="confirm-yes" class="submit-btn" style="margin-top: 0; background: #ef4444;">ĐỒNG Ý</button>
+                <button onclick="closeConfirmModal()" class="submit-btn" style="margin-top: 0; background: var(--slate-200); color: var(--slate-800);">HUỶ</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Profile Modal -->
+    <div id="edit-profile-modal" class="modal-overlay">
+        <div class="modal-content animate__animated animate__fadeInUp">
+            <div class="modal-header">
+                <h2 style="font-weight: 900;">CHỈNH SỬA HỒ SƠ</h2>
+            </div>
+            <form onsubmit="handleUpdateProfile(event)">
+                <div class="form-group">
+                    <label>Họ và tên</label>
+                    <input type="text" id="profile-name" required>
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="profile-email" required>
+                </div>
+                <div class="form-group">
+                    <label>Số điện thoại</label>
+                    <input type="text" id="profile-phone" required>
+                </div>
+                <div class="form-group">
+                    <label>Ảnh đại diện</label>
+                    <div style="display: flex; gap: 10px; flex-direction: column;">
+                        <input type="file" id="profile-avatar-file" accept="image/*" style="font-size: 0.75rem;">
+                        <span style="font-size: 0.75rem; color: var(--slate-400);">Dung lượng tối đa 1MB</span>
+                    </div>
+                </div>
+                <button type="submit" class="submit-btn">LƯU THAY ĐỔI</button>
+                <button type="button" onclick="closeEditProfileModal()" style="width: 100%; background: none; border: none; color: var(--slate-400); margin-top: 10px; cursor: pointer;">Huỷ bỏ</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="script.js"></script>
   </body>
 </html>

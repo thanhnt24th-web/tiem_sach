@@ -413,6 +413,34 @@ td {
     margin-top: 1rem;
 }
 
+/* Custom Toast */
+.custom-toast {
+    background: white;
+    border-radius: 12px;
+    padding: 12px 20px;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+    border-left: 4px solid var(--primary);
+    min-width: 300px;
+}
+
+.custom-toast.success { border-left-color: #22c55e; }
+.custom-toast.error { border-left-color: #ef4444; }
+.custom-toast.info { border-left-color: #3b82f6; }
+
+.toast-icon {
+    font-size: 1.25rem;
+}
+
+.toast-message {
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: var(--slate-800);
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .header-content {

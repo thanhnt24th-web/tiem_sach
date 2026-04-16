@@ -1,13 +1,5 @@
 // --- Initial Data ---
-const VOUCHERS = [
-    { code: 'SACHMOI', discount: 0.1, description: 'Giảm 10% cho khách hàng mới' },
-    { code: 'HOANGGIA', discount: 0.2, description: 'Giảm 20% cho đơn hàng trên 500k', minPurchase: 500000 },
-    { code: 'TRIAN', discount: 0.15, description: 'Giảm 15% tri ân khách hàng' },
-    { code: 'TIEMSACH30/4', fixedAmount: 50000, description: 'Giảm 50.000đ cho đơn hàng từ 200k', minPurchase: 200000, expiryDate: '2026-04-30T23:59:59' },
-    { code: 'KHACHMOI', fixedAmount: 50000, description: 'Giảm 50.000đ phí vận chuyển cho khách hàng mới', isShippingDiscount: true },
-];
-
-let books = [
+const DEFAULT_BOOKS = [
     { id: '1', title: 'Bao Giờ Cho Đến Ngày Xưa', author: 'Nhiều tác giả', price: 150000, quantity: 50, category: 'Văn học', coverUrl: 'https://cdn1.fahasa.com/media/catalog/product/9/7/9786326062373_1_1_1.jpg' },
     { id: '2', title: 'Hạ Thanh Hải Yên', author: 'Nhiều tác giả', price: 125000, quantity: 30, category: 'Tiểu thuyết', coverUrl: 'https://cdn1.fahasa.com/media/catalog/product/b/_/b_a-_o-h_-thanh-h_i-y_n_b_a-tr_c.jpg' },
     { id: '3', title: 'Những Ký Ức Điện Biên', author: 'Nhiều tác giả', price: 142000, quantity: 20, category: 'Lịch sử', coverUrl: 'https://cdn1.fahasa.com/media/catalog/product/k/i/ki-niem-70-nam-chien-thang-dien-bien-phu_nhung-ki-uc-dien-bien_bia.jpg' },
@@ -22,12 +14,21 @@ let books = [
     { id: '12', title: 'Tâm Lý Học Đường', author: 'Nhiều tác giả', price: 120000, quantity: 60, category: 'Tâm lý', coverUrl: 'https://cdn1.fahasa.com/media/catalog/product/8/9/8935236436175.jpg' },
 ];
 
+const VOUCHERS = [
+    { code: 'SACHMOI', discount: 0.1, description: 'Giảm 10% cho khách hàng mới' },
+    { code: 'HOANGGIA', discount: 0.2, description: 'Giảm 20% cho đơn hàng trên 500k', minPurchase: 500000 },
+    { code: 'TRIAN', discount: 0.15, description: 'Giảm 15% tri ân khách hàng' },
+    { code: 'TIEMSACH30/4', fixedAmount: 50000, description: 'Giảm 50.000đ cho đơn hàng từ 200k', minPurchase: 200000, expiryDate: '2026-04-30T23:59:59' },
+    { code: 'KHACHMOI', fixedAmount: 50000, description: 'Giảm 50.000đ phí vận chuyển cho khách hàng mới', isShippingDiscount: true },
+];
+
 // --- Application State ---
+let books = JSON.parse(localStorage.getItem('books')) || DEFAULT_BOOKS;
 let currentView = 'store';
-let cart = [];
-let isLoggedIn = false;
-let isAdmin = false;
-let user = {
+let cart = JSON.parse(localStorage.getItem('cart')) || [];
+let isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+let isAdmin = localStorage.getItem('isAdmin') === 'true';
+let user = JSON.parse(localStorage.getItem('user')) || {
     name: 'Nguyễn Văn A',
     email: 'example@gmail.com',
     phone: '0123456789',
@@ -35,9 +36,9 @@ let user = {
     joined: '06/04/2026',
     totalPurchases: 25
 };
-let importHistory = [];
-let salesHistory = [];
-let paymentHistory = [];
+let importHistory = JSON.parse(localStorage.getItem('importHistory')) || [];
+let salesHistory = JSON.parse(localStorage.getItem('salesHistory')) || [];
+let paymentHistory = JSON.parse(localStorage.getItem('paymentHistory')) || [];
 let selectedVoucher = null;
 let searchTerm = '';
 let activeAdminTab = 'import';
@@ -47,8 +48,63 @@ const mainContent = document.getElementById('main-content');
 const cartCount = document.getElementById('cart-count');
 const navBtns = document.querySelectorAll('.nav-btn');
 const adminLoginModal = document.getElementById('admin-login-modal');
+const editBookModal = document.getElementById('edit-book-modal');
+const editProfileModal = document.getElementById('edit-profile-modal');
+const confirmModal = document.getElementById('confirm-modal');
+const toastContainer = document.getElementById('toast-container');
 
 // --- Functions ---
+
+function saveToStorage() {
+    localStorage.setItem('books', JSON.stringify(books));
+    localStorage.setItem('cart', JSON.stringify(cart));
+    localStorage.setItem('isLoggedIn', isLoggedIn);
+    localStorage.setItem('isAdmin', isAdmin);
+    localStorage.setItem('user', JSON.stringify(user));
+    localStorage.setItem('importHistory', JSON.stringify(importHistory));
+    localStorage.setItem('salesHistory', JSON.stringify(salesHistory));
+    localStorage.setItem('paymentHistory', JSON.stringify(paymentHistory));
+}
+
+function showToast(message, type = 'success') {
+    const toast = document.createElement('div');
+    toast.className = `custom-toast ${type} animate__animated animate__fadeInDown`;
+    
+    let icon = 'fa-check-circle';
+    if (type === 'error') icon = 'fa-exclamation-circle';
+    if (type === 'info') icon = 'fa-info-circle';
+
+    toast.innerHTML = `
+        <div class="toast-icon"><i class="fa-solid ${icon}"></i></div>
+        <div class="toast-message">${message}</div>
+    `;
+    
+    toastContainer.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.classList.replace('animate__fadeInDown', 'animate__fadeOutUp');
+        setTimeout(() => toast.remove(), 500);
+    }, 3000);
+}
+
+function customConfirm(title, message, onConfirm) {
+    document.getElementById('confirm-title').textContent = title;
+    document.getElementById('confirm-message').textContent = message;
+    confirmModal.style.display = 'flex';
+    
+    const yesBtn = document.getElementById('confirm-yes');
+    const newYesBtn = yesBtn.cloneNode(true);
+    yesBtn.parentNode.replaceChild(newYesBtn, yesBtn);
+    
+    newYesBtn.onclick = () => {
+        onConfirm();
+        closeConfirmModal();
+    };
+}
+
+function closeConfirmModal() {
+    confirmModal.style.display = 'none';
+}
 
 function formatPrice(price) {
     return price.toLocaleString('vi-VN') + 'đ';
@@ -58,7 +114,6 @@ function switchView(view) {
     currentView = view;
     render();
     
-    // Update active nav button
     navBtns.forEach(btn => {
         if (btn.dataset.view === view) {
             btn.classList.add('active');
@@ -89,6 +144,7 @@ function render() {
     }
     
     updateCartBadge();
+    saveToStorage();
 }
 
 function updateCartBadge() {
@@ -110,9 +166,10 @@ function renderStore() {
     );
 
     let html = `
-        <div class="store-header">
+        <div class="store-header animate__animated animate__fadeIn">
             <h2>Danh sách sản phẩm</h2>
             <div class="search-bar">
+                <i class="fa-solid fa-magnifying-glass" style="color: var(--slate-400);"></i>
                 <input type="text" id="search-input" placeholder="Tìm sách..." value="${searchTerm}">
             </div>
         </div>
@@ -120,9 +177,9 @@ function renderStore() {
 
     if (selectedVoucher) {
         html += `
-            <div style="background: #f0fdf4; border: 1px solid #bbf7d0; padding: 1rem; border-radius: 12px; margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center;">
+            <div class="animate__animated animate__pulse" style="background: #f0fdf4; border: 1px solid #bbf7d0; padding: 1rem; border-radius: 12px; margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center;">
                 <div>
-                    <strong style="color: #166534;">Đang áp dụng: ${selectedVoucher.code}</strong>
+                    <strong style="color: #166534;"><i class="fa-solid fa-ticket"></i> Đang áp dụng: ${selectedVoucher.code}</strong>
                     <p style="font-size: 0.875rem; color: #15803d;">${selectedVoucher.description}</p>
                 </div>
                 <button onclick="removeVoucher()" style="color: #166534; font-weight: 700; background: none; border: none; cursor: pointer;">Gỡ bỏ</button>
@@ -131,9 +188,9 @@ function renderStore() {
     }
 
     html += `<div class="book-grid">`;
-    filteredBooks.forEach(book => {
+    filteredBooks.forEach((book, index) => {
         html += `
-            <div class="book-card">
+            <div class="book-card animate__animated animate__fadeInUp" style="animation-delay: ${index * 0.05}s">
                 <div class="book-img-container">
                     <img src="${book.coverUrl}" alt="${book.title}" onerror="this.src='https://picsum.photos/seed/book/400/600'">
                 </div>
@@ -144,7 +201,7 @@ function renderStore() {
                         <div class="book-stock">Kho: ${book.quantity}</div>
                     </div>
                     <button class="add-to-cart-btn" onclick="addToCart('${book.id}')">
-                        🛒 Thêm vào giỏ
+                        <i class="fa-solid fa-cart-plus"></i> Thêm vào giỏ
                     </button>
                 </div>
             </div>
@@ -178,8 +235,8 @@ function renderCart() {
     const total = subtotal - discount + (shipping - shippingDiscount);
 
     let html = `
-        <div class="cart-container">
-            <h2 style="margin-bottom: 1.5rem; font-weight: 900; text-transform: uppercase;">🛒 Giỏ hàng của bạn</h2>
+        <div class="cart-container animate__animated animate__fadeInRight">
+            <h2 style="margin-bottom: 1.5rem; font-weight: 900; text-transform: uppercase;"><i class="fa-solid fa-cart-shopping"></i> Giỏ hàng của bạn</h2>
     `;
 
     if (cart.length === 0) {
@@ -197,7 +254,7 @@ function renderCart() {
                         <button class="qty-btn" onclick="updateQty('${item.id}', -1)">-</button>
                         <span style="font-weight: 700; min-width: 20px; text-align: center;">${item.cartQuantity}</span>
                         <button class="qty-btn" onclick="updateQty('${item.id}', 1)">+</button>
-                        <button onclick="removeFromCart('${item.id}')" style="background: none; border: none; color: #ef4444; cursor: pointer; margin-left: 10px;">🗑️</button>
+                        <button onclick="removeFromCart('${item.id}')" style="background: none; border: none; color: #ef4444; cursor: pointer; margin-left: 10px;"><i class="fa-solid fa-trash-can"></i></button>
                     </div>
                 </div>
             `;
@@ -228,60 +285,106 @@ function renderCart() {
 
 function renderAdmin() {
     let html = `
-        <div class="admin-section">
-            <h2 style="margin-bottom: 1.5rem; font-weight: 900;">⚙️ QUẢN LÝ CỬA HÀNG</h2>
-            <div style="display: flex; gap: 10px; margin-bottom: 2rem;">
-                <button class="nav-btn ${activeAdminTab === 'import' ? 'active' : ''}" onclick="setAdminTab('import')" style="color: #333">Nhập hàng</button>
-                <button class="nav-btn ${activeAdminTab === 'inventory' ? 'active' : ''}" onclick="setAdminTab('inventory')" style="color: #333">Kho hàng</button>
-                <button class="nav-btn ${activeAdminTab === 'history' ? 'active' : ''}" onclick="setAdminTab('history')" style="color: #333">Lịch sử</button>
+        <div class="admin-section animate__animated animate__fadeIn">
+            <h2 style="margin-bottom: 1.5rem; font-weight: 900;"><i class="fa-solid fa-screwdriver-wrench"></i> QUẢN LÝ CỬA HÀNG</h2>
+            <div style="display: flex; gap: 10px; margin-bottom: 2rem; flex-wrap: wrap;">
+                <button class="nav-btn ${activeAdminTab === 'import' ? 'active' : ''}" onclick="setAdminTab('import')" style="color: #333"><i class="fa-solid fa-plus"></i> Nhập hàng</button>
+                <button class="nav-btn ${activeAdminTab === 'inventory' ? 'active' : ''}" onclick="setAdminTab('inventory')" style="color: #333"><i class="fa-solid fa-warehouse"></i> Kho hàng</button>
+                <button class="nav-btn ${activeAdminTab === 'importHistory' ? 'active' : ''}" onclick="setAdminTab('importHistory')" style="color: #333"><i class="fa-solid fa-file-import"></i> Lịch sử nhập</button>
+                <button class="nav-btn ${activeAdminTab === 'history' ? 'active' : ''}" onclick="setAdminTab('history')" style="color: #333"><i class="fa-solid fa-clock-rotate-left"></i> Lịch sử bán</button>
             </div>
     `;
 
     if (activeAdminTab === 'import') {
         html += `
-            <form onsubmit="addBook(event)" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+            <form onsubmit="addBook(event)" class="animate__animated animate__fadeIn" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                 <div class="form-group"><label>Tên sách</label><input type="text" id="new-title" required></div>
                 <div class="form-group"><label>Giá bán</label><input type="number" id="new-price" required></div>
                 <div class="form-group"><label>Tác giả</label><input type="text" id="new-author"></div>
                 <div class="form-group"><label>Số lượng</label><input type="number" id="new-qty" value="1"></div>
-                <div class="form-group" style="grid-column: span 2;"><label>Link ảnh</label><input type="text" id="new-url"></div>
+                <div class="form-group" style="grid-column: span 2;">
+                    <label>Ảnh sản phẩm</label>
+                    <div style="display: flex; gap: 10px; flex-direction: column;">
+                        <input type="text" id="new-url" placeholder="Dán link ảnh vào đây...">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span style="font-size: 0.75rem; color: var(--slate-400);">Hoặc tải lên từ máy:</span>
+                            <input type="file" id="new-file" accept="image/*" style="font-size: 0.75rem;">
+                        </div>
+                    </div>
+                </div>
                 <button type="submit" class="submit-btn" style="grid-column: span 2;">THÊM VÀO KHO</button>
             </form>
         `;
     } else if (activeAdminTab === 'inventory') {
         html += `
-            <table>
-                <thead>
-                    <tr><th>Sản phẩm</th><th>Giá</th><th>Kho</th><th></th></tr>
-                </thead>
-                <tbody>
-                    ${books.map(b => `
-                        <tr>
-                            <td>
-                                <div style="display: flex; align-items: center; gap: 10px;">
-                                    <img src="${b.coverUrl}" class="book-thumb">
-                                    <span>${b.title}</span>
-                                </div>
-                            </td>
-                            <td>${formatPrice(b.price)}</td>
-                            <td>${b.quantity}</td>
-                            <td><button onclick="deleteBook('${b.id}')" style="background:none; border:none; cursor:pointer;">🗑️</button></td>
-                        </tr>
-                    `).join('')}
-                </tbody>
-            </table>
+            <div class="animate__animated animate__fadeIn">
+                <table>
+                    <thead>
+                        <tr><th>Sản phẩm</th><th>Giá</th><th>Kho</th><th style="text-align: right;">Hành động</th></tr>
+                    </thead>
+                    <tbody>
+                        ${books.map(b => `
+                            <tr>
+                                <td>
+                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                        <img src="${b.coverUrl}" class="book-thumb" onerror="this.src='https://picsum.photos/seed/book/400/600'">
+                                        <span>${b.title}</span>
+                                    </div>
+                                </td>
+                                <td>${formatPrice(b.price)}</td>
+                                <td>${b.quantity}</td>
+                                <td style="text-align: right;">
+                                    <button onclick="openEditModal('${b.id}')" style="background:none; border:none; cursor:pointer; color: #3b82f6; margin-right: 10px;"><i class="fa-solid fa-pen-to-square"></i></button>
+                                    <button onclick="confirmDeleteBook('${b.id}')" style="background:none; border:none; cursor:pointer; color: #ef4444;"><i class="fa-solid fa-trash"></i></button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>
+        `;
+    } else if (activeAdminTab === 'importHistory') {
+        html += `
+            <div class="animate__animated animate__fadeIn">
+                <h3 style="margin: 1rem 0;">Lịch sử nhập hàng</h3>
+                <table>
+                    <thead><tr><th>Thời gian</th><th>Sản phẩm</th><th>Số lượng</th><th>Đơn giá</th><th style="text-align: right;">Hành động</th></tr></thead>
+                    <tbody>
+                        ${importHistory.map(h => `
+                            <tr>
+                                <td>${h.date}</td>
+                                <td>${h.title}</td>
+                                <td>${h.quantity}</td>
+                                <td>${formatPrice(h.price)}</td>
+                                <td style="text-align: right;">
+                                    <button onclick="confirmDeleteHistory('import', ${h.id})" style="background:none; border:none; cursor:pointer; color: #ef4444;"><i class="fa-solid fa-trash"></i></button>
+                                </td>
+                            </tr>
+                        `).join('') || '<tr><td colspan="5" style="text-align:center">Chưa có dữ liệu nhập hàng</td></tr>'}
+                    </tbody>
+                </table>
+            </div>
         `;
     } else if (activeAdminTab === 'history') {
         html += `
-            <h3 style="margin: 1rem 0;">Lịch sử bán hàng</h3>
-            <table>
-                <thead><tr><th>Thời gian</th><th>Sản phẩm</th><th>Tổng tiền</th></tr></thead>
-                <tbody>
-                    ${salesHistory.map(h => `
-                        <tr><td>${h.date}</td><td>${h.title}</td><td>${formatPrice(h.price)}</td></tr>
-                    `).join('') || '<tr><td colspan="3" style="text-align:center">Chưa có dữ liệu</td></tr>'}
-                </tbody>
-            </table>
+            <div class="animate__animated animate__fadeIn">
+                <h3 style="margin: 1rem 0;">Lịch sử bán hàng</h3>
+                <table>
+                    <thead><tr><th>Thời gian</th><th>Sản phẩm</th><th>Tổng tiền</th><th style="text-align: right;">Hành động</th></tr></thead>
+                    <tbody>
+                        ${salesHistory.map(h => `
+                            <tr>
+                                <td>${h.date}</td>
+                                <td>${h.title}</td>
+                                <td>${formatPrice(h.price)}</td>
+                                <td style="text-align: right;">
+                                    <button onclick="confirmDeleteHistory('sales', ${h.id})" style="background:none; border:none; cursor:pointer; color: #ef4444;"><i class="fa-solid fa-trash"></i></button>
+                                </td>
+                            </tr>
+                        `).join('') || '<tr><td colspan="4" style="text-align:center">Chưa có dữ liệu</td></tr>'}
+                    </tbody>
+                </table>
+            </div>
         `;
     }
 
@@ -291,9 +394,14 @@ function renderAdmin() {
 
 function renderProfile() {
     let html = `
-        <div class="cart-container" style="max-width: 600px;">
+        <div class="cart-container animate__animated animate__fadeInUp" style="max-width: 600px;">
+            <div style="display: flex; justify-content: flex-end; margin-bottom: -2rem;">
+                <button onclick="openEditProfileModal()" style="background: var(--slate-100); border: none; padding: 8px 15px; border-radius: 8px; font-weight: 700; cursor: pointer; color: var(--slate-600); font-size: 0.875rem;">
+                    <i class="fa-solid fa-user-pen"></i> Sửa hồ sơ
+                </button>
+            </div>
             <div style="text-align: center; margin-bottom: 2rem;">
-                <img src="${user.avatar}" style="width: 100px; height: 100px; border-radius: 50%; border: 4px solid var(--primary); margin-bottom: 1rem;">
+                <img src="${user.avatar}" style="width: 100px; height: 100px; border-radius: 50%; border: 4px solid var(--primary); margin-bottom: 1rem; object-fit: cover;">
                 <h2 style="font-weight: 900;">${user.name}</h2>
                 <p style="color: var(--slate-500);">${user.email}</p>
             </div>
@@ -327,7 +435,7 @@ function renderProfile() {
 
 function renderLogin() {
     mainContent.innerHTML = `
-        <div class="modal-content" style="margin: 0 auto;">
+        <div class="modal-content animate__animated animate__fadeIn" style="margin: 0 auto;">
             <div class="modal-header">
                 <h2 style="font-weight: 900;">ĐĂNG NHẬP</h2>
             </div>
@@ -344,14 +452,14 @@ function renderLogin() {
 function addToCart(id) {
     const book = books.find(b => b.id === id);
     if (book.quantity <= 0) {
-        alert('Sản phẩm đã hết hàng!');
+        showToast('Sản phẩm đã hết hàng!', 'error');
         return;
     }
     
     const existing = cart.find(item => item.id === id);
     if (existing) {
         if (existing.cartQuantity >= book.quantity) {
-            alert('Đã đạt giới hạn tồn kho!');
+            showToast('Đã đạt giới hạn tồn kho!', 'error');
             return;
         }
         existing.cartQuantity++;
@@ -359,14 +467,16 @@ function addToCart(id) {
         cart.push({ ...book, cartQuantity: 1 });
     }
     
-    alert(`Đã thêm "${book.title}" vào giỏ hàng!`);
+    showToast(`Đã thêm "${book.title}" vào giỏ hàng!`);
     updateCartBadge();
+    saveToStorage();
 }
 
 function removeFromCart(id) {
     cart = cart.filter(item => item.id !== id);
     renderCart();
     updateCartBadge();
+    saveToStorage();
 }
 
 function updateQty(id, delta) {
@@ -378,6 +488,7 @@ function updateQty(id, delta) {
             item.cartQuantity = newQty;
             renderCart();
             updateCartBadge();
+            saveToStorage();
         }
     }
 }
@@ -387,15 +498,16 @@ function applyVoucher() {
     const voucher = VOUCHERS.find(v => v.code === code);
     if (voucher) {
         selectedVoucher = voucher;
-        alert('Áp dụng mã giảm giá thành công!');
+        showToast('Áp dụng mã giảm giá thành công!');
         renderCart();
     } else {
-        alert('Mã giảm giá không hợp lệ!');
+        showToast('Mã giảm giá không hợp lệ!', 'error');
     }
 }
 
 function removeVoucher() {
     selectedVoucher = null;
+    showToast('Đã gỡ bỏ mã giảm giá', 'info');
     render();
 }
 
@@ -435,7 +547,7 @@ function checkout() {
 
     user.totalPurchases++;
     
-    alert('Thanh toán thành công! Cảm ơn bạn đã mua hàng.');
+    showToast('Thanh toán thành công! Cảm ơn bạn đã mua hàng.');
     cart = [];
     selectedVoucher = null;
     switchView('store');
@@ -444,13 +556,15 @@ function checkout() {
 function login() {
     isLoggedIn = true;
     switchView('store');
-    alert('Đăng nhập thành công!');
+    showToast('Đăng nhập thành công!');
 }
 
 function logout() {
     isLoggedIn = false;
     isAdmin = false;
+    saveToStorage();
     switchView('store');
+    showToast('Đã đăng xuất', 'info');
 }
 
 function showAdminLogin() {
@@ -466,13 +580,13 @@ function handleAdminLogin(event) {
     const user = document.getElementById('admin-user').value;
     const pass = document.getElementById('admin-pass').value;
     
-    if (user === 'ngotuanthanh' && pass === 'thanh@') {
+    if (user === 'admin' && pass === '123456') {
         isAdmin = true;
         closeAdminLogin();
         switchView('admin');
-        alert('Chào mừng quản lý Ngô Tuấn Thành!');
+        showToast('Chào mừng quản lý!', 'success');
     } else {
-        alert('Sai thông tin quản lý!');
+        showToast('Sai thông tin quản lý!', 'error');
     }
 }
 
@@ -487,28 +601,164 @@ function addBook(event) {
     const price = parseFloat(document.getElementById('new-price').value);
     const author = document.getElementById('new-author').value || 'Nhiều tác giả';
     const qty = parseInt(document.getElementById('new-qty').value) || 1;
-    const url = document.getElementById('new-url').value || 'https://picsum.photos/seed/book/400/600';
+    const urlInput = document.getElementById('new-url').value;
+    const fileInput = document.getElementById('new-file').files[0];
     
-    const newBook = {
-        id: Date.now().toString(),
-        title,
-        author,
-        price,
-        quantity: qty,
-        category: 'Chung',
-        coverUrl: url
+    const processAdd = (imageUrl) => {
+        const newBook = {
+            id: Date.now().toString(),
+            title,
+            author,
+            price,
+            quantity: qty,
+            category: 'Chung',
+            coverUrl: imageUrl || 'https://picsum.photos/seed/book/400/600'
+        };
+        
+        books.unshift(newBook);
+        
+        importHistory.unshift({
+            id: Date.now(),
+            title: title,
+            quantity: qty,
+            price: price,
+            date: new Date().toLocaleString('vi-VN')
+        });
+
+        showToast('Đã thêm sách vào kho!');
+        renderAdmin();
     };
-    
-    books.unshift(newBook);
-    alert('Đã thêm sách vào kho!');
-    renderAdmin();
+
+    if (fileInput) {
+        const reader = new FileReader();
+        reader.onload = (e) => processAdd(e.target.result);
+        reader.readAsDataURL(fileInput);
+    } else {
+        processAdd(urlInput);
+    }
 }
 
-function deleteBook(id) {
-    if (confirm('Bạn có chắc muốn xoá sách này?')) {
+function confirmDeleteBook(id) {
+    customConfirm('XOÁ SÁCH', 'Bạn có chắc chắn muốn xoá cuốn sách này khỏi kho hàng?', () => {
         books = books.filter(b => b.id !== id);
+        showToast('Đã xoá sách thành công', 'info');
         renderAdmin();
+    });
+}
+
+function openEditModal(id) {
+    const book = books.find(b => b.id === id);
+    if (!book) return;
+    
+    document.getElementById('edit-id').value = book.id;
+    document.getElementById('edit-title').value = book.title;
+    document.getElementById('edit-price').value = book.price;
+    document.getElementById('edit-author').value = book.author;
+    document.getElementById('edit-qty').value = book.quantity;
+    document.getElementById('edit-url').value = book.coverUrl;
+    document.getElementById('edit-file').value = ''; // Reset file input
+    
+    editBookModal.style.display = 'flex';
+}
+
+function closeEditModal() {
+    editBookModal.style.display = 'none';
+}
+
+function handleUpdateBook(event) {
+    event.preventDefault();
+    const id = document.getElementById('edit-id').value;
+    const book = books.find(b => b.id === id);
+    
+    if (book) {
+        const title = document.getElementById('edit-title').value;
+        const price = parseFloat(document.getElementById('edit-price').value);
+        const author = document.getElementById('edit-author').value;
+        const qty = parseInt(document.getElementById('edit-qty').value);
+        const urlInput = document.getElementById('edit-url').value;
+        const fileInput = document.getElementById('edit-file').files[0];
+
+        const processUpdate = (imageUrl) => {
+            book.title = title;
+            book.price = price;
+            book.author = author;
+            book.quantity = qty;
+            book.coverUrl = imageUrl || urlInput;
+            
+            showToast('Cập nhật thông tin thành công!');
+            closeEditModal();
+            renderAdmin();
+        };
+
+        if (fileInput) {
+            const reader = new FileReader();
+            reader.onload = (e) => processUpdate(e.target.result);
+            reader.readAsDataURL(fileInput);
+        } else {
+            processUpdate(urlInput);
+        }
     }
+}
+
+function openEditProfileModal() {
+    document.getElementById('profile-name').value = user.name;
+    document.getElementById('profile-email').value = user.email;
+    document.getElementById('profile-phone').value = user.phone;
+    document.getElementById('profile-avatar-file').value = '';
+    
+    editProfileModal.style.display = 'flex';
+}
+
+function closeEditProfileModal() {
+    editProfileModal.style.display = 'none';
+}
+
+function handleUpdateProfile(event) {
+    event.preventDefault();
+    const name = document.getElementById('profile-name').value;
+    const email = document.getElementById('profile-email').value;
+    const phone = document.getElementById('profile-phone').value;
+    const fileInput = document.getElementById('profile-avatar-file').files[0];
+
+    const processUpdate = (avatarUrl) => {
+        user.name = name;
+        user.email = email;
+        user.phone = phone;
+        if (avatarUrl) user.avatar = avatarUrl;
+        
+        showToast('Cập nhật hồ sơ thành công!');
+        closeEditProfileModal();
+        renderProfile();
+        saveToStorage();
+    };
+
+    if (fileInput) {
+        if (fileInput.size > 1024 * 1024) {
+            showToast('Ảnh quá lớn! Vui lòng chọn ảnh dưới 1MB', 'error');
+            return;
+        }
+        const reader = new FileReader();
+        reader.onload = (e) => processUpdate(e.target.result);
+        reader.readAsDataURL(fileInput);
+    } else {
+        processUpdate();
+    }
+}
+
+function confirmDeleteHistory(type, id) {
+    const title = type === 'import' ? 'XOÁ LỊCH SỬ NHẬP' : 'XOÁ LỊCH SỬ BÁN';
+    const message = 'Bạn có chắc chắn muốn xoá bản ghi lịch sử này?';
+    
+    customConfirm(title, message, () => {
+        if (type === 'import') {
+            importHistory = importHistory.filter(h => h.id !== id);
+        } else {
+            salesHistory = salesHistory.filter(h => h.id !== id);
+        }
+        showToast('Đã xoá bản ghi lịch sử', 'info');
+        renderAdmin();
+        saveToStorage();
+    });
 }
 
 // --- Initial Render ---
