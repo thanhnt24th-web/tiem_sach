@@ -1,20 +1,37 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# Tiệm Sách Siêu Đẹp 📚
 
-# Run and deploy your AI Studio app
+Dự án quản lý tiệm sách đơn giản sử dụng HTML, CSS và JavaScript thuần.
 
-This contains everything you need to run your app locally.
+## 🚀 Cách chạy dự án trên máy tính (Visual Studio Code)
 
-View your app in AI Studio: https://ai.studio/apps/a3ecc19c-904f-4275-85ba-579f4828831e
+1. **Tải mã nguồn**: Tải toàn bộ các file về máy tính của bạn.
+2. **Mở bằng VS Code**: Mở thư mục chứa các file này bằng Visual Studio Code.
+3. **Cài đặt Live Server (Khuyên dùng)**:
+   - Vào mục **Extensions** (phím tắt `Ctrl+Shift+X`).
+   - Tìm và cài đặt extension tên là **"Live Server"** của Ritwick Dey.
+4. **Chạy dự án**:
+   - Chuột phải vào file `index.html`.
+   - Chọn **"Open with Live Server"**.
+   - Trình duyệt sẽ tự động mở và hiển thị giao diện đầy đủ.
 
-## Run Locally
+## 📂 Cấu trúc thư mục
 
-**Prerequisites:**  Node.js
+- `index.html`: Cấu trúc giao diện chính.
+- `style.css`: Toàn bộ định dạng, màu sắc và bố cục.
+- `script.js`: Xử lý logic (giỏ hàng, kho hàng, đăng nhập quản lý).
 
+## 🔐 Thông tin Quản lý (Admin)
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+- **Tên quản lý**: `ngotuanthanh`
+- **Mật khẩu**: `thanh@`
+
+## 🌐 Đưa lên GitHub Pages
+
+1. Tạo một Repository mới trên GitHub.
+2. Upload 3 file chính (`index.html`, `style.css`, `script.js`) lên.
+3. Vào phần **Settings** > **Pages**.
+4. Chọn branch `main` và nhấn **Save**.
+5. Sau vài phút, trang web của bạn sẽ có link truy cập trực tuyến.
+
+---
+*Lưu ý: Đảm bảo cả 3 file nằm cùng một thư mục để chúng có thể nhận diện được nhau.*
