@@ -69,7 +69,7 @@ function saveToStorage() {
 function showToast(message, type = 'success') {
     const toast = document.createElement('div');
     toast.className = `custom-toast ${type} animate__animated animate__fadeInDown`;
-    
+
     let icon = 'fa-check-circle';
     if (type === 'error') icon = 'fa-exclamation-circle';
     if (type === 'info') icon = 'fa-info-circle';
@@ -78,9 +78,9 @@ function showToast(message, type = 'success') {
         <div class="toast-icon"><i class="fa-solid ${icon}"></i></div>
         <div class="toast-message">${message}</div>
     `;
-    
+
     toastContainer.appendChild(toast);
-    
+
     setTimeout(() => {
         toast.classList.replace('animate__fadeInDown', 'animate__fadeOutUp');
         setTimeout(() => toast.remove(), 500);
@@ -91,11 +91,11 @@ function customConfirm(title, message, onConfirm) {
     document.getElementById('confirm-title').textContent = title;
     document.getElementById('confirm-message').textContent = message;
     confirmModal.style.display = 'flex';
-    
+
     const yesBtn = document.getElementById('confirm-yes');
     const newYesBtn = yesBtn.cloneNode(true);
     yesBtn.parentNode.replaceChild(newYesBtn, yesBtn);
-    
+
     newYesBtn.onclick = () => {
         onConfirm();
         closeConfirmModal();
@@ -113,7 +113,7 @@ function formatPrice(price) {
 function switchView(view) {
     currentView = view;
     render();
-    
+
     navBtns.forEach(btn => {
         if (btn.dataset.view === view) {
             btn.classList.add('active');
@@ -125,7 +125,7 @@ function switchView(view) {
 
 function render() {
     mainContent.innerHTML = '';
-    
+
     if (currentView === 'store') {
         renderStore();
     } else if (currentView === 'cart') {
@@ -142,7 +142,7 @@ function render() {
     } else if (currentView === 'login') {
         renderLogin();
     }
-    
+
     updateCartBadge();
     saveToStorage();
 }
@@ -160,7 +160,7 @@ function updateCartBadge() {
 // --- Views ---
 
 function renderStore() {
-    const filteredBooks = books.filter(b => 
+    const filteredBooks = books.filter(b =>
         b.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         b.author.toLowerCase().includes(searchTerm.toLowerCase())
     );
@@ -208,7 +208,7 @@ function renderStore() {
         `;
     });
     html += `</div>`;
-    
+
     mainContent.innerHTML = html;
 
     document.getElementById('search-input').addEventListener('input', (e) => {
@@ -417,8 +417,8 @@ function renderProfile() {
                 </div>
             </div>
             <h3 style="margin-bottom: 1rem; font-weight: 900;">ĐƠN HÀNG GẦN ĐÂY</h3>
-            ${salesHistory.length === 0 ? '<p style="color: var(--slate-400)">Chưa có đơn hàng nào</p>' : 
-                salesHistory.map(h => `
+            ${salesHistory.length === 0 ? '<p style="color: var(--slate-400)">Chưa có đơn hàng nào</p>' :
+            salesHistory.map(h => `
                     <div style="padding: 10px; border-bottom: 1px solid var(--slate-100); font-size: 0.875rem;">
                         <div style="display: flex; justify-content: space-between;">
                             <strong>${h.date}</strong>
@@ -427,7 +427,7 @@ function renderProfile() {
                         <div style="color: var(--slate-500);">${h.title}</div>
                     </div>
                 `).join('')
-            }
+        }
         </div>
     `;
     mainContent.innerHTML = html;
@@ -455,7 +455,7 @@ function addToCart(id) {
         showToast('Sản phẩm đã hết hàng!', 'error');
         return;
     }
-    
+
     const existing = cart.find(item => item.id === id);
     if (existing) {
         if (existing.cartQuantity >= book.quantity) {
@@ -466,7 +466,7 @@ function addToCart(id) {
     } else {
         cart.push({ ...book, cartQuantity: 1 });
     }
-    
+
     showToast(`Đã thêm "${book.title}" vào giỏ hàng!`);
     updateCartBadge();
     saveToStorage();
@@ -513,7 +513,7 @@ function removeVoucher() {
 
 function checkout() {
     if (cart.length === 0) return;
-    
+
     const subtotal = cart.reduce((acc, item) => acc + (item.price * item.cartQuantity), 0);
     let discount = 0;
     let shipping = 50000;
@@ -546,7 +546,7 @@ function checkout() {
     });
 
     user.totalPurchases++;
-    
+
     showToast('Thanh toán thành công! Cảm ơn bạn đã mua hàng.');
     cart = [];
     selectedVoucher = null;
@@ -579,7 +579,7 @@ function handleAdminLogin(event) {
     event.preventDefault();
     const user = document.getElementById('admin-user').value;
     const pass = document.getElementById('admin-pass').value;
-    
+
     if (user === 'admin' && pass === '123456') {
         isAdmin = true;
         closeAdminLogin();
@@ -603,7 +603,7 @@ function addBook(event) {
     const qty = parseInt(document.getElementById('new-qty').value) || 1;
     const urlInput = document.getElementById('new-url').value;
     const fileInput = document.getElementById('new-file').files[0];
-    
+
     const processAdd = (imageUrl) => {
         const newBook = {
             id: Date.now().toString(),
@@ -614,9 +614,9 @@ function addBook(event) {
             category: 'Chung',
             coverUrl: imageUrl || 'https://picsum.photos/seed/book/400/600'
         };
-        
+
         books.unshift(newBook);
-        
+
         importHistory.unshift({
             id: Date.now(),
             title: title,
@@ -649,7 +649,7 @@ function confirmDeleteBook(id) {
 function openEditModal(id) {
     const book = books.find(b => b.id === id);
     if (!book) return;
-    
+
     document.getElementById('edit-id').value = book.id;
     document.getElementById('edit-title').value = book.title;
     document.getElementById('edit-price').value = book.price;
@@ -657,7 +657,7 @@ function openEditModal(id) {
     document.getElementById('edit-qty').value = book.quantity;
     document.getElementById('edit-url').value = book.coverUrl;
     document.getElementById('edit-file').value = ''; // Reset file input
-    
+
     editBookModal.style.display = 'flex';
 }
 
@@ -669,7 +669,7 @@ function handleUpdateBook(event) {
     event.preventDefault();
     const id = document.getElementById('edit-id').value;
     const book = books.find(b => b.id === id);
-    
+
     if (book) {
         const title = document.getElementById('edit-title').value;
         const price = parseFloat(document.getElementById('edit-price').value);
@@ -684,7 +684,7 @@ function handleUpdateBook(event) {
             book.author = author;
             book.quantity = qty;
             book.coverUrl = imageUrl || urlInput;
-            
+
             showToast('Cập nhật thông tin thành công!');
             closeEditModal();
             renderAdmin();
@@ -705,7 +705,7 @@ function openEditProfileModal() {
     document.getElementById('profile-email').value = user.email;
     document.getElementById('profile-phone').value = user.phone;
     document.getElementById('profile-avatar-file').value = '';
-    
+
     editProfileModal.style.display = 'flex';
 }
 
@@ -725,7 +725,7 @@ function handleUpdateProfile(event) {
         user.email = email;
         user.phone = phone;
         if (avatarUrl) user.avatar = avatarUrl;
-        
+
         showToast('Cập nhật hồ sơ thành công!');
         closeEditProfileModal();
         renderProfile();
@@ -748,7 +748,7 @@ function handleUpdateProfile(event) {
 function confirmDeleteHistory(type, id) {
     const title = type === 'import' ? 'XOÁ LỊCH SỬ NHẬP' : 'XOÁ LỊCH SỬ BÁN';
     const message = 'Bạn có chắc chắn muốn xoá bản ghi lịch sử này?';
-    
+
     customConfirm(title, message, () => {
         if (type === 'import') {
             importHistory = importHistory.filter(h => h.id !== id);

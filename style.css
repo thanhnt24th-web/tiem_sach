@@ -92,14 +92,14 @@ nav {
     transition: all 0.2s;
 }
 
-.nav-btn:hover {
-    background: rgba(255, 255, 255, 0.1);
-}
+    .nav-btn:hover {
+        background: rgba(255, 255, 255, 0.1);
+    }
 
-.nav-btn.active {
-    background: white;
-    color: var(--primary-dark);
-}
+    .nav-btn.active {
+        background: white;
+        color: var(--primary-dark);
+    }
 
 .cart-badge {
     background: var(--secondary);
@@ -127,9 +127,9 @@ main {
     display: none;
 }
 
-.view-section.active {
-    display: block;
-}
+    .view-section.active {
+        display: block;
+    }
 
 /* Store View */
 .store-header {
@@ -141,11 +141,11 @@ main {
     border-bottom: 1px solid var(--slate-200);
 }
 
-.store-header h2 {
-    font-size: 1.875rem;
-    font-weight: 900;
-    text-transform: uppercase;
-}
+    .store-header h2 {
+        font-size: 1.875rem;
+        font-weight: 900;
+        text-transform: uppercase;
+    }
 
 .search-bar {
     display: flex;
@@ -157,12 +157,12 @@ main {
     box-shadow: 0 1px 2px rgba(0,0,0,0.05);
 }
 
-.search-bar input {
-    border: none;
-    outline: none;
-    margin-left: 8px;
-    width: 200px;
-}
+    .search-bar input {
+        border: none;
+        outline: none;
+        margin-left: 8px;
+        width: 200px;
+    }
 
 .book-grid {
     display: grid;
@@ -178,21 +178,21 @@ main {
     transition: transform 0.3s, box-shadow 0.3s;
 }
 
-.book-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-}
+    .book-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    }
 
 .book-img-container {
     position: relative;
     aspect-ratio: 3/4;
 }
 
-.book-img-container img {
-    width: 100%;
-    height: 100%;
-    object-cover: cover;
-}
+    .book-img-container img {
+        width: 100%;
+        height: 100%;
+        object-cover: cover;
+    }
 
 .book-info {
     padding: 16px;
@@ -246,9 +246,9 @@ main {
     transition: background 0.2s;
 }
 
-.add-to-cart-btn:hover {
-    background: var(--primary-dark);
-}
+    .add-to-cart-btn:hover {
+        background: var(--primary-dark);
+    }
 
 /* Modal */
 .modal-overlay {
@@ -282,25 +282,25 @@ main {
     margin-bottom: 1rem;
 }
 
-.form-group label {
-    display: block;
-    font-size: 0.875rem;
-    font-weight: 700;
-    margin-bottom: 0.5rem;
-}
+    .form-group label {
+        display: block;
+        font-size: 0.875rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
 
-.form-group input {
-    width: 100%;
-    padding: 12px;
-    border-radius: 12px;
-    border: 1px solid var(--slate-200);
-    outline: none;
-}
+    .form-group input {
+        width: 100%;
+        padding: 12px;
+        border-radius: 12px;
+        border: 1px solid var(--slate-200);
+        outline: none;
+    }
 
-.form-group input:focus {
-    border-color: var(--primary);
-    box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
-}
+        .form-group input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+        }
 
 .submit-btn {
     width: 100%;
@@ -427,9 +427,17 @@ td {
     min-width: 300px;
 }
 
-.custom-toast.success { border-left-color: #22c55e; }
-.custom-toast.error { border-left-color: #ef4444; }
-.custom-toast.info { border-left-color: #3b82f6; }
+    .custom-toast.success {
+        border-left-color: #22c55e;
+    }
+
+    .custom-toast.error {
+        border-left-color: #ef4444;
+    }
+
+    .custom-toast.info {
+        border-left-color: #3b82f6;
+    }
 
 .toast-icon {
     font-size: 1.25rem;
@@ -447,7 +455,7 @@ td {
         flex-direction: column;
         gap: 1rem;
     }
-    
+
     .nav-btn span {
         display: none;
     }
