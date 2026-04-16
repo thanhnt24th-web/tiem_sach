@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tiệm Sách Siêu Đẹp</title>
+    <link rel="stylesheet" href="/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+  </head>
+  <body>
+    <header>
+        <div class="container header-content">
+            <div class="logo" onclick="switchView('store')">
+                <div class="logo-icon">📚</div>
+                <h1>Tiệm Sách Siêu Đẹp</h1>
+            </div>
+            <nav>
+                <button class="nav-btn active" data-view="store" onclick="switchView('store')">
+                    🏠 <span>Cửa hàng</span>
+                </button>
+                <button class="nav-btn" data-view="admin" onclick="switchView('admin')">
+                    ⚙️ <span>Quản lý</span>
+                </button>
+                <button class="nav-btn" data-view="cart" onclick="switchView('cart')" style="position: relative;">
+                    🛒 <span>Giỏ hàng</span>
+                    <div id="cart-count" class="cart-badge" style="display: none;">0</div>
+                </button>
+                <button class="nav-btn" data-view="profile" onclick="switchView('profile')">
+                    👤 <span>Hồ sơ</span>
+                </button>
+                <button class="nav-btn" onclick="switchView('login')">
+                    🔑 <span>Đăng nhập</span>
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container" id="main-content">
+        <!-- Content will be injected by script.js -->
+    </main>
+
+    <!-- Admin Login Modal -->
+    <div id="admin-login-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 style="font-weight: 900;">XÁC THỰC QUẢN LÝ</h2>
+            </div>
+            <form onsubmit="handleAdminLogin(event)">
+                <div class="form-group">
+                    <label>Tên quản lý</label>
+                    <input type="text" id="admin-user" placeholder="Nhập tên quản lý">
+                </div>
+                <div class="form-group">
+                    <label>Mật khẩu</label>
+                    <input type="password" id="admin-pass" placeholder="Nhập mật khẩu">
+                </div>
+                <button type="submit" class="submit-btn">ĐĂNG NHẬP</button>
+                <button type="button" onclick="closeAdminLogin()" style="width: 100%; background: none; border: none; color: var(--slate-400); margin-top: 10px; cursor: pointer;">Huỷ bỏ</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="/script.js"></script>
+  </body>
+</html>
+
