@@ -111,7 +111,12 @@ function formatPrice(price) {
 }
 
 function switchView(view) {
-    currentView = view;
+    if (view === 'profile' && !isLoggedIn) {
+        showToast('Vui lòng đăng nhập để xem hồ sơ', 'info');
+        currentView = 'login';
+    } else {
+        currentView = view;
+    }
     render();
 
     navBtns.forEach(btn => {
@@ -125,6 +130,22 @@ function switchView(view) {
 
 function render() {
     mainContent.innerHTML = '';
+
+    // Dynamic Navigation
+    const profileBtn = document.getElementById('nav-profile');
+    const loginText = document.getElementById('login-text');
+    const loginBtn = document.getElementById('nav-login');
+
+    if (isLoggedIn) {
+        if (profileBtn) profileBtn.style.display = 'flex';
+        if (loginText) loginText.textContent = 'Đăng xuất';
+        if (loginBtn) loginBtn.querySelector('i').className = 'fa-solid fa-right-from-bracket';
+    } else {
+        if (profileBtn) profileBtn.style.display = 'none';
+        if (loginText) loginText.textContent = 'Đăng nhập';
+        if (loginBtn) loginBtn.querySelector('i').className = 'fa-solid fa-key';
+        if (currentView === 'profile') currentView = 'store';
+    }
 
     if (currentView === 'store') {
         renderStore();
@@ -555,7 +576,8 @@ function checkout() {
 
 function login() {
     isLoggedIn = true;
-    switchView('store');
+    saveToStorage();
+    switchView('profile');
     showToast('Đăng nhập thành công!');
 }
 
@@ -565,6 +587,14 @@ function logout() {
     saveToStorage();
     switchView('store');
     showToast('Đã đăng xuất', 'info');
+}
+
+function handleLoginClick() {
+    if (isLoggedIn) {
+        logout();
+    } else {
+        switchView('login');
+    }
 }
 
 function showAdminLogin() {
@@ -580,7 +610,7 @@ function handleAdminLogin(event) {
     const user = document.getElementById('admin-user').value;
     const pass = document.getElementById('admin-pass').value;
 
-    if (user === 'admin' && pass === '123456') {
+    if (user === 'quanly' && pass === '123456') {
         isAdmin = true;
         closeAdminLogin();
         switchView('admin');

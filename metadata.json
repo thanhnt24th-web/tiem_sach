@@ -1,5 +1,6 @@
 {
   "name": "Tiệm Sách Xịn",
   "description": "Trang web quản lý và bán sách chuyên nghiệp với giao diện bắt mắt, tính năng đăng nhập, hồ sơ và quản lý kho.",
-  "requestFramePermissions": []
+  "requestFramePermissions": [],
+  "majorCapabilities": []
 }

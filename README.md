@@ -22,8 +22,8 @@ Dự án quản lý tiệm sách đơn giản sử dụng HTML, CSS và JavaScri
 
 ## 🔐 Thông tin Quản lý (Admin)
 
-- **Tên quản lý**: `ngotuanthanh`
-- **Mật khẩu**: `thanh@`
+- **Tên quản lý**: `quanly`
+- **Mật khẩu**: `123456`
 
 ## 🌐 Đưa lên GitHub Pages
 
